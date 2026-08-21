@@ -361,6 +361,9 @@ const menuGoto = (value: any) => {
 const tabListRef = ref([]) as any
 const pluginsConfig = ref(getPluginsConfig() as any)
 const router = useRouter()
+const scrollToPlugin = (name: string) => {
+    tabListRef.value[name]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 const goto = (value: any) => {
     if (value.value === 'tvtPluginUrl') {
         window.open('https://www.icegl.cn/tvtstore', '_blank')
@@ -375,21 +378,20 @@ const goto = (value: any) => {
     } else if (value.value === 'loadDynamicEcoUrl') {
         window.open('https://dcser.icegl.cn', '_blank')
     } else {
-        tabListRef.value[value.value]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        scrollToPlugin(value.value)
         router.replace({ hash: `#${value.value}` })
     }
 }
 
 const route = useRoute()
-onMounted(() => {
-    nextTick(() => {
-        const hash = route.hash
-        const tabdom = hash.startsWith('#') ? hash.slice(1) : (hash as any)
-        if (tabdom) {
-            tabListRef.value[tabdom]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-    })
-})
+const scrollToHash = async () => {
+    await nextTick()
+    const hash = route.hash
+    const tabdom = hash.startsWith('#') ? hash.slice(1) : hash
+    if (tabdom) {
+        scrollToPlugin(tabdom)
+    }
+}
 
 const scrollToTop = () => {
     document.querySelector('.right-page-list')?.scrollTo({ top: 0, behavior: 'smooth' })
@@ -485,11 +487,17 @@ watch(pluginsConfig, refreshFilteredData, {
     deep: true,
 })
 const shouldCheckReleaseMenu = process.env.NODE_ENV === 'development' || process.env.FES_APP_ONLINE_API
-if (process.env.FES_APP_PLSNAME === undefined) {
-    getOnlinePluginConfig(pluginsConfig, {
-        checkReleaseMenu: shouldCheckReleaseMenu,
-    })
-}
+const onlinePluginConfigReady =
+    process.env.FES_APP_PLSNAME === undefined
+        ? getOnlinePluginConfig(pluginsConfig, {
+              checkReleaseMenu: shouldCheckReleaseMenu,
+          })
+        : Promise.resolve()
+onMounted(async () => {
+    await scrollToHash()
+    await onlinePluginConfigReady
+    await scrollToHash()
+})
 const getleftMenuBadge = (name: string) => {
     const tagOne = {
         recommend: { show: false, text: '荐' },
@@ -691,6 +699,12 @@ const openTopMune = () => {
 }
 </style>
 <style lang="less" scoped>
+@media (min-width: 901px) {
+    .right-page-list {
+        scroll-padding-top: 50px;
+    }
+}
+
 .toTop {
     position: fixed;
     right: 20px;
