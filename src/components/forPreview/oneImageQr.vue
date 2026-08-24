@@ -1,6 +1,6 @@
 <template>
     <div v-if="hasPreview">
-        <FTooltip mode="popover" :offset="-278" placement="bottom" :getContainer="getContainer" :disabled="detectDeviceType() !== 'PC'">
+        <FTooltip mode="popover" :offset="-248" placement="bottom" :getContainer="getContainer" :disabled="detectDeviceType() !== 'PC'">
             <FImage class="w-full max-h-70 h-14em" fit="contain" :src="imgSrc()" lazy />
             <template #content>
                 <div class="one-image-qr-popover">
@@ -126,8 +126,8 @@ const getContainer = (container: any) => {
     background-color: #000000ab;
 }
 .one-image-qr-popover {
-    width: 460px;
-    height: 250px;
+    width: 360px;
+    height: 220px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -139,8 +139,8 @@ const getContainer = (container: any) => {
     font-size: 16px;
     font-weight: bolder;
     &__image {
-        width: 190px;
-        height: 190px;
+        width: 160px;
+        height: 160px;
         margin: 8px auto;
         display: block;
 
