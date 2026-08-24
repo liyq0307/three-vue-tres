@@ -123,7 +123,7 @@ The project is built on four open-source foundations. Plugins, editors, dynamic 
       <a href="https://zone3deditor.icegl.cn/#/plugins/zone3Deditor/index"><strong>Online 3D Scene Editor</strong></a><br>
       <sub>Free source export + secondary development</sub><br><br>
       <a href="https://zone3deditor.icegl.cn/#/plugins/zone3Deditor/index" style="display:block;">
-        <img width="480" height="270" style="width:100%;max-width:480px;height:270px;object-fit:cover;" src="./public/plugins/zone3Deditor/preview/index.png" alt="Online 3D Scene Editor">
+        <img width="480" height="270" style="width:100%;max-width:480px;height:270px;object-fit:cover;" src="https://cdn.index.icegl.cn/uploads/20250519/94fbce573ef3a2ba59c1100a08339857.png" alt="Online 3D Scene Editor">
       </a>
     </td>
     <td width="50%" align="center" valign="top" style="padding:12px;width:50%;vertical-align:top;">

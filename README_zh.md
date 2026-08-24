@@ -120,7 +120,7 @@ TvT.js 与 AI 的结合已经进入内容生产和工程开发两条主线：AI 
       <a href="https://zone3deditor.icegl.cn/#/plugins/zone3Deditor/index"><strong>在线三维场景编辑器</strong></a><br>
       <sub>免费导出源码 + 二次开发</sub><br><br>
       <a href="https://zone3deditor.icegl.cn/#/plugins/zone3Deditor/index" style="display:block;">
-        <img width="480" height="270" style="width:100%;max-width:480px;height:270px;object-fit:cover;" src="./public/plugins/zone3Deditor/preview/index.png" alt="在线三维场景编辑器">
+        <img width="480" height="270" style="width:100%;max-width:480px;height:270px;object-fit:cover;" src="https://cdn.index.icegl.cn/uploads/20250519/94fbce573ef3a2ba59c1100a08339857.png" alt="在线三维场景编辑器">
       </a>
     </td>
     <td width="50%" align="center" valign="top" style="padding:12px;width:50%;vertical-align:top;">
