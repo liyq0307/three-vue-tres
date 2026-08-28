@@ -45,6 +45,7 @@ export class MeshReflectionMaterial extends MeshStandardMaterial {
   private _sharpDepthScale: { value: number } = { value: 0 }
   private _sharpDepthBias: { value: number } = { value: 0 }
   private _distortion: { value: number } = { value: 1 }
+  private _mapIntensity: { value: number } = { value: 1 }
 
   constructor(parameters = {}) {
     super(parameters)
@@ -90,6 +91,7 @@ export class MeshReflectionMaterial extends MeshStandardMaterial {
     shader.uniforms.blurMixRough = this._blurMixRough
 
     shader.uniforms.distortion = this._distortion
+    shader.uniforms.mapIntensity = this._mapIntensity
 
     shader.vertexShader = `
         uniform mat4 textureMatrix;
@@ -107,6 +109,7 @@ export class MeshReflectionMaterial extends MeshStandardMaterial {
         uniform sampler2D tDepth;
         uniform sampler2D distortionMap;
         uniform float distortion;
+        uniform float mapIntensity;
         uniform float cameraNear;
         uniform float cameraFar;
         uniform float mixMain;
@@ -119,6 +122,14 @@ export class MeshReflectionMaterial extends MeshStandardMaterial {
         uniform float sharpDepthEdgeMax;
         varying vec4 my_vUv;
         ${shader.fragmentShader}`
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <map_fragment>',
+      `vec4 mapBaseDiffuseColor = diffuseColor;
+      #include <map_fragment>
+      #ifdef USE_MAP
+        diffuseColor = mix(mapBaseDiffuseColor, diffuseColor, clamp(mapIntensity, 0.0, 1.0));
+      #endif`,
+    )
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <emissivemap_fragment>',
       `#include <emissivemap_fragment>
@@ -133,10 +144,10 @@ export class MeshReflectionMaterial extends MeshStandardMaterial {
 
       #ifdef USE_NORMALMAP
 
-        vec4 normalColor = texture(normalMap, vUv * normalScale);
+        vec4 normalColor = texture(normalMap, vNormalMapUv);
         vec3 my_normal = normalize( vec3( normalColor.r * 2.0 - 1.0, normalColor.b,  normalColor.g * 2.0 - 1.0 ) );
         vec3 coord = new_vUv.xyz / new_vUv.w;
-        vec2 normal_uv = coord.xy + coord.z * my_normal.xz * 0.05;
+        vec2 normal_uv = coord.xy + coord.z * my_normal.xz * normalScale * 0.05;
 
         vec4 sharp = texture(tSharp, normal_uv);
 
@@ -303,5 +314,13 @@ export class MeshReflectionMaterial extends MeshStandardMaterial {
 
   set distortion(v: number) {
     this._distortion.value = v
+  }
+
+  get mapIntensity(): number {
+    return this._mapIntensity.value
+  }
+
+  set mapIntensity(v: number) {
+    this._mapIntensity.value = v
   }
 }

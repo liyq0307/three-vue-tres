@@ -4,7 +4,7 @@
  * @Autor: 地虎降天龙
  * @Date: 2023-12-20 17:01:37
  * @LastEditors: 地虎降天龙
- * @LastEditTime: 2025-12-15 15:39:20
+ * @LastEditTime: 2026-08-28 12:30:14
  */
 export default {
     name: 'floor',
@@ -14,13 +14,14 @@ export default {
     author: '地虎降天龙',
     website: 'https://gitee.com/hawk86104',
     state: 'active',
-    require: [],
+    require: ['basic'],
     preview: [
         { src: 'plugins/floor/preview/ripperfloor.png', type: 'img', name: 'rippleFloor', title: '波纹地板' },
         { src: 'plugins/floor/preview/mechaFloor.png', type: 'img', name: 'mechaFloor', title: '机甲地板' },
         { src: 'plugins/floor/preview/sixface.png', type: 'img', name: 'hexagonalWall', title: '六面柱地板' },
         { src: 'plugins/floor/preview/rubberTilesPage.png', type: 'img', name: 'rubberTilesPage', title: '橡胶地板' },
         { src: 'plugins/floor/preview/simpleReflector.png', type: 'img', name: 'simpleReflector', title: '简单镜面' },
+        { src: 'plugins/floor/preview/meshReflectionFloor.png', type: 'img', name: 'meshReflectionFloor', title: '通用镜面地板' },
         { src: 'plugins/floor/preview/reflectorShader.png', type: 'img', name: 'reflectorShader', title: '镜面材质着色器' },
         { src: 'plugins/floor/preview/reflectorDiffuse.png', type: 'img', name: 'reflectorDiffuse', title: 'fiber镜面' },
         { src: 'plugins/floor/preview/reflectorDUDV.png', type: 'img', name: 'reflectorDUDV', title: 'dudv镜面' },

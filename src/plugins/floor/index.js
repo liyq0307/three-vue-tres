@@ -27,6 +27,16 @@ import ribbonArrow from './components/ribbonArrow.vue'
 import shaderCircleWave from './components/shaderCircleWave.vue'
 import cartoonMagic from './components/cartoonMagic.vue'
 import dynamicRotatingBase from './components/dynamicRotatingBase.vue'
+import meshReflectionFloor from './components/meshReflectionFloor.vue'
+
+export {
+    createMeshReflectionFloorState,
+    meshReflectionFloorDefaults,
+    meshReflectionFloorDistortionMapOptions,
+    meshReflectionFloorEditorConfig,
+    meshReflectionFloorMapOptions,
+    meshReflectionFloorNormalMapOptions,
+} from './common/meshReflectionFloor'
 
 export {
     reflectorDiffuse,
@@ -49,5 +59,6 @@ export {
     ribbonArrow,
     shaderCircleWave,
     cartoonMagic,
-    dynamicRotatingBase
+    dynamicRotatingBase,
+    meshReflectionFloor
 }

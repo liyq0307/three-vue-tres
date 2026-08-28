@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/attribute-hyphenation -->
 <script setup lang="ts">
-import { logWarning, useLoop, useTres } from '@tresjs/core'
+import { useLoop, useTres } from '@tresjs/core'
 import { fixSpritesForMirror } from 'PLS/floor/common/utils.js'
 import type {
   Texture,
@@ -61,7 +61,7 @@ export interface MeshReflectionMaterialProps {
   blurSize?: [number, number] | number
 
   /** Texture for offsetting the reflection. */
-  distortionMap?: Texture
+  distortionMap?: Texture | null
   /** Influence of `distortionMap`. */
   distortion?: number
   /** Offsets the reflection. */
@@ -70,7 +70,8 @@ export interface MeshReflectionMaterialProps {
   color?: TresColor
   roughness?: number
   metalness?: number
-  map?: Texture
+  map?: Texture | null
+  mapIntensity?: number
   lightMap?: Texture
   lightMapIntensity?: number
   aoMap?: Texture | null
@@ -80,7 +81,7 @@ export interface MeshReflectionMaterialProps {
   emissiveMap?: Texture
   bumpMap?: Texture
   bumpScale?: number
-  normalMap?: Texture
+  normalMap?: Texture | null
   normalMapType?: number
   normalScale?: Vector2
   displacementMap?: Texture
@@ -130,6 +131,7 @@ const props = withDefaults(
     roughness: 1.0,
     roughnessMap: null,
     metalness: 0.0,
+    mapIntensity: 1.0,
     lightMapIntensity: 1.0,
     aoMapIntensity: 1.0,
     emissive: () => new Color(0x000000),
@@ -159,6 +161,18 @@ const hasBlur = computed(() => blurWidth.value > 0 || blurHeight.value > 0)
 const hasDepth = computed(() => props.sharpDepthScale > 0 || props.blurDepthScale > 0)
 const hasDistortion = computed(() => !!props.distortionMap)
 const hasRoughness = computed(() => !!props.roughnessMap)
+const hasMap = computed(() => !!props.map)
+const hasNormal = computed(() => !!props.normalMap)
+// Tres cannot swap a recompiled material reliably. Remount the internal
+// material whenever a prop changes one of its shader defines.
+const materialVariantKey = computed(() => [
+  hasBlur.value,
+  hasDepth.value,
+  hasDistortion.value,
+  hasRoughness.value,
+  hasMap.value,
+  hasNormal.value,
+].map(Number).join('-'))
 
 const materialRef = shallowRef()
 let blurpass: BlurPass
@@ -232,47 +246,6 @@ watch(() => [
   })
 }, { immediate: true })
 
-// NOTE: Begin #615 warning
-// The Tres core doesn't currently swap mesh materials when a
-// material component recompiles.
-//
-// Issue: https://github.com/Tresjs/tres/issues/615
-//
-// Workaround: Warn users if they trigger a recompile.
-//
-// TODO: This code can be removed when #615 is resolved
-watch(() => [hasBlur.value], () => {
-  logWarning(
-    'MeshReflectionMaterial: Setting blurMixRough or blurMixSmooth to 0, then non-zero triggers a recompile.'
-    + 'The TresJS core cannot currently handle recompiled materials.',
-  )
-})
-watch(hasDepth, () => {
-  logWarning(
-    'MeshReflectionMaterial: Setting depthScale to 0, then non-zero triggers a recompile.'
-    + 'The TresJS core cannot currently handle recompiled materials.',
-  )
-})
-watch(hasDistortion, () => {
-  logWarning(
-    'MeshReflectionMaterial: Toggling distortionMap triggers a recompile.'
-    + 'The TresJS core cannot currently handle recompiled materials.',
-  )
-})
-watch(hasRoughness, () => {
-  logWarning(
-    'MeshReflectionMaterial: Toggling roughnessMap triggers a recompile.'
-    + 'The TresJS core cannot currently handle recompiled materials.',
-  )
-})
-watch(() => [props.normalMap], () => {
-  logWarning(
-    'MeshReflectionMaterial: Toggling normalMap triggers a recompile.'
-    + 'The TresJS core cannot currently handle recompiled materials.',
-  )
-})
-// End #615 warning
-
 onBeforeUnmount(() => {
   fboSharp.dispose()
   fboBlur.dispose()
@@ -282,7 +255,7 @@ const { onBeforeRender } = useLoop()
 
 onBeforeRender(({ renderer, scene, camera }) => {
   const parent = (materialRef.value as any)?.__tres?.parent
-  if (!parent) { return }
+  if (!parent?.visible) { return }
   if (renderer instanceof WebGPURenderer) {
     console.warn('MeshReflectionMaterial: WebGPURenderer is not supported yet')
     return
@@ -290,6 +263,7 @@ onBeforeRender(({ renderer, scene, camera }) => {
   if (renderer instanceof WebGLRenderer) {
     invalidate()
 
+    const currentParentVisible = parent.visible
     const currentXrEnabled = renderer.xr.enabled
     const currentShadowAutoUpdate = renderer.shadowMap.autoUpdate
 
@@ -371,7 +345,7 @@ onBeforeRender(({ renderer, scene, camera }) => {
     // NOTE: Restore the previous render target and material
     renderer.xr.enabled = currentXrEnabled
     renderer.shadowMap.autoUpdate = currentShadowAutoUpdate
-    parent.visible = true
+    parent.visible = currentParentVisible
     renderer.setRenderTarget(null)
     invalidate()
   }
@@ -381,11 +355,7 @@ defineExpose({ instance: materialRef })
 
 <template>
   <TresMeshReflectionMaterial
-    :key="`key${hasBlur ? '0' : '1'
-    }${hasDepth ? '0' : '1'
-    }${hasDistortion ? '0' : '1'
-    }${hasRoughness ? '0' : '1'
-    }`"
+    :key="materialVariantKey"
     ref="materialRef"
     v-bind="props"
     :texture-matrix="state.textureMatrix"
